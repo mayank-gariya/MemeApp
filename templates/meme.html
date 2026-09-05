@@ -1,0 +1,50 @@
+{% extends "base.html" %}
+
+{% block title %}Find Memes & Recommendations - Meme Lens{% endblock %}
+
+{% block extra_css %}
+    <link rel="stylesheet" href="{{ url_for('static', filename='meme.css') }}">
+{% endblock %}
+
+{% block meme %}
+    <section class="meme-container">
+        <div class="meme-header">
+            <h1>Hi there !! <strong>Chaloo Show Meme</strong></h1>
+            <p>Click any meme to discover AI recommendations or share!</p>
+        </div>
+
+        <div class="memes-grid" id="memes-grid">
+            {% if memes %}
+                {% for item in memes %}
+                    <div class="meme-card">
+                        <div class="meme-image-wrapper">
+                            <img src="{{ item.url }}" alt="{{ item.title }}" loading="lazy" />
+                        </div>
+                        <div class="meme-details">
+                            <h3 class="meme-title">{{ item.title }}</h3>
+                            <div class="meme-meta">
+                                <span class="subreddit">r/{{ item.subreddit }}</span>
+                                <span class="author">u/{{ item.author }}</span>
+                            </div>
+                            <a href="{{ item.postLink }}" target="_blank" class="btn-recommend">
+                                Get Recommendations ✨
+                            </a>
+                        </div>
+                    </div>
+                {% endfor %}
+            {% else %}
+                <div class="no-memes">
+                    <p>Failed to load memes. Please try refreshing!</p>
+                </div>
+            {% endif %}
+
+        </div>
+
+        <div class="show-more-area load-more-container">
+            <button id="load-more-btn" class="show-more load-more-btn">Show more 🚀</button>
+        </div>
+
+    </section>
+
+    <script src="{{ url_for('static', filename='load_more.js') }}""></script>
+{% endblock %}

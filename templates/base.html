@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Meme Lens{% endblock %}</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='base.css') }}">
+
+    <link rel="icon" type="image/png" href="D:\MemeApp\favicon/favicon-96x96.png" sizes="96x96" />
+    <link rel="icon" type="image/svg+xml" href="D:\MemeApp\favicon/favicon.svg" />
+    <link rel="shortcut icon" href="D:\MemeApp\favicon/favicon.ico" />
+    <link rel="apple-touch-icon" sizes="180x180" href="D:\MemeApp\favicon/apple-touch-icon.png" />
+    <meta name="apple-mobile-web-app-title" content="MyWebSite" />
+    <link rel="manifest" href="D:\MemeApp\favicon/site.webmanifest" />
+
+    {% block extra_css %}{% endblock %}
+</head>
+<body>
+    <audio id="meme-sound-1" src="{{ url_for('static', filename='assits/modiji.mp3') }}" preload="auto"></audio>
+
+    {% include 'header.html' %}
+
+    <main class="content">
+        {% block content %}{% endblock %}
+        {% block meme %}{% endblock %}      
+    </main>
+
+    <script src="{{ url_for('static', filename='home_popup.js')}}"></script>
+</body>
+</html>

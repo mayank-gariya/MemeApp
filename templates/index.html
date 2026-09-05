@@ -1,0 +1,57 @@
+{% extends "base.html" %}
+
+{% block title %}Meme Lens - Find, Recommend & Train AI Memes{% endblock %}
+
+{% block content %}
+<section class="hero-section">
+    <div class="hero-container">
+        
+        <div class="interactive-title-wrapper">
+            <div class="side-meme left-meme">
+                <img src="https://i.imgflip.com/1g8my4.jpg" alt="Meme Left" />
+            </div>
+
+            <img id="modi-meme-img" src="https://i.pinimg.com/736x/67/33/e1/6733e1a8afaf346b26259adf8254bb2b.jpg" alt="modi meme" style="height: 250px; width: 350px; cursor: pointer; border: 3px solid #8b5cf6; box-shadow:  0 10px 25px rgba((139,92,246,0.4), green, blue, alpha); border-radius: 20px; margin-bottom: 15px;">
+
+            <h1 class="hero-title">
+                Decode & Create Memes with 
+                <span class="highlight hover-meme-trigger magic-span">
+                    Lens Intelligence
+                </span>
+            </h1>
+
+            <div class="side-meme right-meme">
+                <img src="https://i.imgflip.com/26am.jpg" alt="Meme Right" />
+            </div>
+        </div>
+
+        <p class="hero-subtitle">
+            Find viral templates, get instant <strong>one-click meme recommendations</strong>, or train custom vision models to detect your facial expressions and hand gestures in real-time.
+        </p>
+
+        <div class="hero-actions">
+            <a href="#" class="btn-hero btn-purple">Explore Memes</a>
+            <a href="#" class="btn-hero btn-outline">Train Gesture Model 🤖</a>
+        </div>
+
+        <div class="hero-features">
+            <div class="feature-card">
+                <div class="feature-icon">⚡</div>
+                <h3>1-Click Recommendations</h3>
+                <p>Click any meme to instantly discover visually and contextually related meme formats.</p>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon">🖐️</div>
+                <h3>Expression & Gesture AI</h3>
+                <p>Train your own custom models using face tracking and hand signals to trigger custom memes.</p>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon">🎨</div>
+                <h3>Meme Studio</h3>
+                <p>Generate, caption, and export high-res memes directly inside your browser.</p>
+            </div>
+        </div>
+
+    </div>
+</section>
+{% endblock %}
