@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Meme Lens{% endblock %}</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='base.css') }}">
+
+    <link rel="icon" type="image/png" href="{{ url_for('static', filename='favicon/favicon-96x96.png') }}" sizes="96x96" />
+    <link rel="icon" type="image/svg+xml" href="{{ url_for('static', filename='favicon/favicon.svg') }}" />
+    <link rel="shortcut icon" href="{{ url_for('static', filename='favicon/favicon.ico') }}" />
+    <link rel="apple-touch-icon" sizes="180x180" href="{{ url_for('static', filename='favicon/apple-touch-icon.png') }}" />
+    <meta name="apple-mobile-web-app-title" content="MyWebSite" />
+
+    <link rel="stylesheet" href="{{ url_for('static',filename='trained_model.css')}}">
+
+</head>
+<body>
+    {% include 'header.html' %}
+
+    <section class="container">
+        <aside class="left-sidebar">
+            <h1>📸 Open camera and <span>Click Pics</span> to Test model </h1>
+        </aside>
+        <aside class="right-sidebar">
+
+        </aside>
+    </section>
+</body>
+</html>

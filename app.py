@@ -30,5 +30,9 @@ def get_more_meme():
     meme_list = get_meme(count)
     return jsonify(meme_list)
 
+@app.route('/meme/pre/trained-model/')
+def trained_model():
+    return render_template('trained_model.html')
+
 if __name__ == '__main__':
     app.run(debug=True)

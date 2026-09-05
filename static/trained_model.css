@@ -1,0 +1,32 @@
+html, body {
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+}
+
+.container {
+    display: grid;
+    grid-template-columns: 450px 1fr;
+    gap: 20px;
+    margin: 1.2rem auto;
+    max-width: 1440px;
+    height: calc(100vh - 5.6rem); 
+}
+
+.left-sidebar {
+    height: 100%;
+    background: radial-gradient(circle at top, #1e1b4b 0%, #121214 70%);
+    border-radius:15px;
+    border: 1px solid rgba(86, 8, 222, 0.335);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 15px 20px;
+}
+
+.right-sidebar {
+    height: 100%;
+    background: radial-gradient(circle at top, #1e1b4b 0%, #121214 70%);
+    overflow-y: auto; 
+    border-radius:15px;
+    border: 1px solid rgba(86, 8, 222, 0.335);
+}

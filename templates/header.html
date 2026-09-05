@@ -13,7 +13,7 @@
             <a href="{{ url_for('home') }}" class="nav-item active">Home</a>
             <a href="{{ url_for('meme') }}" class="nav-item">Recommend</a>
             <a href="#" class="nav-item">Train AI Model</a>
-            <a href="#" class="nav-item btn-primary">Create Meme</a>
+            <a href="{{ url_for('trained_model') }}" class="nav-item btn-primary">Use Model</a>
         </nav>
     </div>
 </header>
