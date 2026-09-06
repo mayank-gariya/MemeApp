@@ -5,7 +5,7 @@ html, body {
 
 .container {
     display: grid;
-    grid-template-columns: 450px 1fr;
+    grid-template-columns: auto 1fr;
     gap: 20px;
     margin: 1.2rem auto;
     max-width: 1440px;
@@ -20,7 +20,11 @@ html, body {
     display: flex;
     flex-direction: column;
     align-items: center;
+    width: 450px;
+    max-width: 900px;
     padding: 15px 20px;
+    overflow: auto;
+    resize: horizontal;
 }
 
 .right-sidebar {
@@ -29,4 +33,47 @@ html, body {
     overflow-y: auto; 
     border-radius:15px;
     border: 1px solid rgba(86, 8, 222, 0.335);
+    overflow-y: auto;
+}
+
+.left-sidebar * ,
+.right-sidebar * {
+    background: none;
+}
+
+.left-sidebar h2{
+    font-family: 'Gill Sans', 'Gill Sans MT', Calibri, 'Trebuchet MS', sans-serif;
+    font-size: 1.95rem;
+    font-weight: 700;
+    text-align: center;
+}
+
+.camera-section{
+    width:100%;
+    display:flex;
+    flex-direction:column;
+    gap:12px;
+    margin-top:20px;
+}
+
+.camera-section button{
+    padding:10px;
+    border:none;
+    border-radius:8px;
+    cursor:pointer;
+    background:#5b21b6;
+    color:white;
+    font-weight:600;
+}
+
+#video,
+#preview{
+    width:100%;
+    border-radius:10px;
+    border:1px solid rgba(255,255,255,.15);
+    display:none;
+}
+
+#canvas{
+    display:none;
 }

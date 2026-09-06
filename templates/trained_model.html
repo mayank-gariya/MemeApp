@@ -20,11 +20,25 @@
 
     <section class="container">
         <aside class="left-sidebar">
-            <h1>📸 Open camera and <span>Click Pics</span> to Test model </h1>
+            <h2>📸 Open camera and <span style="color:#7c3aed; font-size: 2rem;">Click Pics</span> to Test model </h2>
+            <div class="camera-section">
+
+                <video id="video" autoplay playsinline></video>
+
+                <button id="openCamera">Open Camera</button>
+                <button id="captureBtn">Capture</button>
+
+                <canvas id="canvas"></canvas>
+                <img id="preview" alt="Captured Image">
+            
+            </div>
         </aside>
         <aside class="right-sidebar">
 
         </aside>
     </section>
+
+    <script src="{{ url_for('static',filename='capture_camera.js') }}"></script>
+
 </body>
 </html>
