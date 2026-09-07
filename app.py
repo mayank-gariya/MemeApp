@@ -51,5 +51,9 @@ def predict():
         "result":result
     })
 
+@app.route('/customise-model/train')
+def customise_model():
+    return render_template('customise_model.html')
+
 if __name__ == '__main__':
     app.run(debug=True)
