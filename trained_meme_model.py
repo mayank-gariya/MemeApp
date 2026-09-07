@@ -38,7 +38,7 @@ face_detector = vision.FaceLandmarker.create_from_options(
 )
 
 MODEL_EXPECTED_FEATURES = 52
-labels = ['angryCat', 'giveMeMoney', 'Iknow', 'middle', 'shock', 'cute', 'totalpeace', 'waitWaht', 'wannafight']
+labels = ['angryCat', 'giveMeMoney', 'Iknow', 'middle', 'shock', 'huh', 'totalpeace', 'waitWaht', 'wannafight']
 
 
 def get_results(img):

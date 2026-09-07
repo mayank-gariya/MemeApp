@@ -1,44 +1,175 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{% block title %}Meme Lens{% endblock %}</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='base.css') }}">
+    <!DOCTYPE html>
+    <html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>{% block title %}Meme Lens{% endblock %}</title>
+        <link rel="stylesheet" href="{{ url_for('static', filename='base.css') }}">
 
-    <link rel="icon" type="image/png" href="{{ url_for('static', filename='favicon/favicon-96x96.png') }}" sizes="96x96" />
-    <link rel="icon" type="image/svg+xml" href="{{ url_for('static', filename='favicon/favicon.svg') }}" />
-    <link rel="shortcut icon" href="{{ url_for('static', filename='favicon/favicon.ico') }}" />
-    <link rel="apple-touch-icon" sizes="180x180" href="{{ url_for('static', filename='favicon/apple-touch-icon.png') }}" />
-    <meta name="apple-mobile-web-app-title" content="MyWebSite" />
+        <link rel="icon" type="image/png" href="{{ url_for('static', filename='favicon/favicon-96x96.png') }}" sizes="96x96" />
+        <link rel="icon" type="image/svg+xml" href="{{ url_for('static', filename='favicon/favicon.svg') }}" />
+        <link rel="shortcut icon" href="{{ url_for('static', filename='favicon/favicon.ico') }}" />
+        <link rel="apple-touch-icon" sizes="180x180" href="{{ url_for('static', filename='favicon/apple-touch-icon.png') }}" />
+        <meta name="apple-mobile-web-app-title" content="MyWebSite" />
 
-    <link rel="stylesheet" href="{{ url_for('static',filename='trained_model.css')}}">
+        <link rel="stylesheet" href="{{ url_for('static',filename='trained_model.css')}}">
 
-</head>
-<body>
-    {% include 'header.html' %}
+    </head>
+    <body>
+        {% include 'header.html' %}
 
-    <section class="container">
-        <aside class="left-sidebar">
-            <h2>📸 Open camera and <span style="color:#7c3aed; font-size: 2rem;">Click Pics</span> to Test model </h2>
-            <div class="camera-section">
+        <section class="container">
+            <aside class="left-sidebar">
+                <h2>📸 Open camera and <span style="color:#7c3aed; font-size: 2rem;">Click Pics</span> to Test model </h2>
+                <div class="camera-section">
 
-                <video id="video" autoplay playsinline></video>
+                    <video id="video" autoplay playsinline></video>
 
-                <button id="openCamera">Open Camera</button>
-                <button id="captureBtn">Capture</button>
+                    <button id="openCamera">Open Camera</button>
+                    <button id="captureBtn">Capture</button>
+                    <canvas id="canvas"></canvas>
+                    <img id="preview" alt="Captured Image">
+                    <img id="result" style="display:none;" alt="Generated Meme">
+                </div>
+            </aside>
+            <aside class="right-sidebar">
+                <div class="guide">
+                    <div class="guide-header">
+                        <h2>How Meme Lens Works</h2>
+                        <p>
+                            Open your camera, make a face or hand gesture, and let the model
+                            predict the closest meme category in real time.
+                        </p>
+                    </div>
 
-                <canvas id="canvas"></canvas>
-                <img id="preview" alt="Captured Image">
-            
-            </div>
-        </aside>
-        <aside class="right-sidebar">
+                    <div class="steps">
+                        <div class="step">
+                            <div class="step-number">1</div>
+                            <div>
+                                <h3>Open Camera</h3>
+                                <p>Click <strong>Open Camera</strong> to start your webcam.</p>
+                            </div>
+                        </div>
 
-        </aside>
-    </section>
+                        <div class="step">
+                            <div class="step-number">2</div>
+                            <div>
+                                <h3>Capture</h3>
+                                <p>Strike a pose or expression and press <strong>Capture</strong>.</p>
+                            </div>
+                        </div>
 
-    <script src="{{ url_for('static',filename='capture_camera.js') }}"></script>
+                        <div class="step">
+                            <div class="step-number">3</div>
+                            <div>
+                                <h3>See Your Meme</h3>
+                                <p>The model predicts a category and shows the matching meme instantly.</p>
+                            </div>
+                        </div>
+                    </div>
 
-</body>
-</html>
+                    <div class="category-section">
+                        <h3>Try These Meme Categories</h3>
+                        <p class="category-subtitle">These are the gestures and expressions the model was trained on.</p>
+
+                        <div class="meme-grid">
+
+                            <div class="meme-card">
+                                <span>angryCat</span>
+                                <div class="meme-pair">
+                                    <div class="image-box">
+                                        <img src="{{ url_for('static', filename='MemeImgs/5.jpg') }}" alt="Original">
+                                        <small>Input</small>
+                                    </div>
+                                    <div class="arrow">→</div>
+                                    <div class="image-box">
+                                        <img src="{{ url_for('static', filename='MemeImgs/angryCat.png') }}" alt="angryCat">
+                                        <small>Output</small>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="meme-card">
+                                <span>giveMeMoney</span>
+                                <div class="meme-pair">
+                                    <div class="image-box">
+                                        <img src="{{ url_for('static', filename='MemeImgs/1.jpg') }}" alt="Original">
+                                        <small>Input</small>
+                                    </div>
+                                    <div class="arrow">→</div>
+                                    <div class="image-box">
+                                        <img src="{{ url_for('static', filename='MemeImgs/giveMeMoney.png') }}" alt="giveMeMoney">
+                                        <small>Output</small>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="meme-card">
+                                <span>Iknow</span>
+                                <div class="meme-pair">
+                                    <div class="image-box">
+                                        <img src="{{ url_for('static', filename='MemeImgs/2.jpg') }}" alt="Original">
+                                        <small>Input</small>
+                                    </div>
+                                    <div class="arrow">→</div>
+                                    <div class="image-box">
+                                        <img src="{{ url_for('static', filename='MemeImgs/Iknow.png') }}" alt="Iknow">
+                                        <small>Output</small>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="meme-card">
+                                <span>middle</span>
+                                <div class="meme-pair">
+                                    <div class="image-box">
+                                        <img src="{{ url_for('static', filename='MemeImgs/88.jpg') }}" alt="Original">
+                                        <small>Input</small>
+                                    </div>
+                                    <div class="arrow">→</div>
+                                    <div class="image-box">
+                                        <img src="{{ url_for('static', filename='MemeImgs/middle.png') }}" alt="middle">
+                                        <small>Output</small>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="meme-card">
+                                <span>shock</span>
+                                <div class="meme-pair">
+                                    <div class="image-box">
+                                        <img src="{{ url_for('static', filename='MemeImgs/4.jpg') }}" alt="Original">
+                                        <small>Input</small>
+                                    </div>
+                                    <div class="arrow">→</div>
+                                    <div class="image-box">
+                                        <img src="{{ url_for('static', filename='MemeImgs/shock.png') }}" alt="shock">
+                                        <small>Output</small>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="meme-card">
+                                <span>totalpeace</span>
+                                <div class="meme-pair">
+                                    <div class="image-box">
+                                        <img src="{{ url_for('static', filename='MemeImgs/6.jpg') }}" alt="Original">
+                                        <small>Input</small>
+                                    </div>
+                                    <div class="arrow">→</div>
+                                    <div class="image-box">
+                                        <img src="{{ url_for('static', filename='MemeImgs/totalpeace.png') }}" alt="totalpeace">
+                                        <small>Output</small>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </aside>
+        </section>
+
+        <script src="{{ url_for('static',filename='capture_camera.js') }}"></script>
+
+    </body>
+    </html>

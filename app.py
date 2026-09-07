@@ -3,6 +3,7 @@ import requests
 from trained_meme_model import get_results
 import numpy as np
 import cv2 as cv
+import os 
 
 app = Flask(__name__ ,template_folder='templates')
 
@@ -15,8 +16,8 @@ def get_meme(n=20):
         return []
     except Exception as e:
         print(f"Error fetching memes: {e}")
-        return []
-    
+        return []       
+
 @app.route('/')
 def home():
     return render_template('index.html')
@@ -45,8 +46,6 @@ def predict():
     img = cv.imdecode(file_byte,cv.IMREAD_COLOR)
     
     result = get_results(img=img)
-    
-    print(result)
     
     return jsonify({
         "result":result

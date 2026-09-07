@@ -3,6 +3,7 @@ const captureBtn = document.getElementById("captureBtn");
 const video = document.getElementById("video");
 const canvas = document.getElementById("canvas");
 const preview = document.getElementById("preview");
+const result = document.getElementById('result');
 
 let stream = null;
 let cameraOpen = false;
@@ -67,7 +68,9 @@ captureBtn.addEventListener("click", async () => {
             });
 
             const data = await response.json();
-            console.log(data.result);
+            const memeName = data.result.split(": ")[1];
+            result.setAttribute("src", `/static/MemeImgs/${memeName}.png`);
+            result.style.display = "block";
         }, "image/png");
     }
 });
