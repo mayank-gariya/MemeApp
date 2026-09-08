@@ -1,142 +1,163 @@
-{% include "head.html" %}
+{% extends "base.html" %}
 
-<title>Train custom Model</title>
+{% block title %}Train Custom Model{% endblock %}
 
 {% block extra_css %}
 <link rel="stylesheet" href="{{ url_for('static', filename='customise_model.css') }}">
 {% endblock %}
 
-{% include 'header.html' %}
+{% block content %}
 
 <section class="train-model-container">
 
-    <!-- Left Hero -->
     <div class="train-info">
-
         <span class="hero-badge">✨ Custom AI Training</span>
 
         <h2>Train a Meme Model That Understands Your Humor.</h2>
 
         <p>
-            Build your own meme recognizer by creating custom categories and
-            collecting examples with your camera or gallery. Every image you add
-            becomes part of your personal training dataset.
+            Create your own meme recognizer by collecting facial expressions or
+            hand gestures that map to your favorite meme. Capture images, build
+            a dataset, and train a model that understands your reactions.
         </p>
 
         <button class="hero-btn" id="scrollTrainer">
-            See Current Meme ↓
+            <a href="#meme-library">Use given mems↓</a>
         </button>
-
-        <div class="hero-illustration">
-            <AsyncImage query="3D purple AI robot with floating meme images futuristic dark neon illustration" aspectRatio="5:4" width="100%" maxHeight=340/>
-        </div>
 
     </div>
 
-    <!-- Right Trainer -->
     <div class="train-model" id="trainer">
 
         <div class="model-header">
-            <h3>🧠 Build Your Meme Dataset</h3>
-            <p>Capture new photos or upload existing images for your custom category.</p>
+            <h3>🧠 AI Training Workspace</h3>
+            <p>Everything below becomes part of your custom training pipeline.</p>
+        </div>
+        <div class="meme-panel" id="memePanel">
+            <div class="meme-card-large">
+                <div class="meme-text">
+                    <span class="badge-label">TARGET OUTCOME</span>
+                    <h4>🎯 Output Meme Prediction</h4>
+                    <p>This is the final meme your trained model will trigger and output upon recognizing your expressions.</p>
+                </div>
+
+                <img id="memePreview" src="{{ url_for('static', filename='MemeImgs/newmeme1.png') }}" alt="Target Output Meme">
+
+                <button id="chooseMemeBtn" type="button">Change Output Meme</button>
+                <input id="memeUpload" type="file" accept="image/*" hidden>
+            </div>
         </div>
 
-        <!-- Camera / Gallery Toggle -->
+        <div class="model-header" style="margin-top: 10px;">
+            <h3>📥 Training Input Data</h3>
+            <p>Capture or upload the images (facial expressions/gestures) that will map to the target meme above.</p>
+        </div>
 
         <div class="source-toggle">
-
-            <button class="source-btn active" id="cameraMode">
-                📷 Camera
-            </button>
-
-            <button class="source-btn" id="galleryMode">
-                🖼 Gallery
-            </button>
-
-            <button class="source-btn" id="memeMode">
-                Add Meme
-            </button>
-
+            <button class="source-btn active" id="cameraMode" type="button">📷 Camera Capture</button>
+            <button class="source-btn" id="galleryMode" type="button">🖼 Upload Dataset</button>
         </div>
-
-        <!-- Camera Section -->
 
         <div class="camera-panel" id="cameraPanel">
-
             <video id="video" autoplay playsinline></video>
-
             <div class="camera-actions">
-                <button id="openCamera">Open Camera</button>
-                <button id="captureBtn">Capture</button>
+                <button id="openCamera" type="button">Open Camera</button>
+                <button id="captureBtn" type="button">Capture Sample</button>
             </div>
-
             <canvas id="canvas"></canvas>
-
         </div>
 
-        <!-- Upload Section -->
         <div class="upload-panel hidden" id="uploadPanel">
             <div class="upload-area" id="uploadArea">
-                <input
-                    type="file"
-                    id="imageUpload"
-                    accept="image/*"
-                    multiple
-                    hidden>
-
+                <input id="imageUpload" type="file" accept="image/*" multiple hidden>
                 <div class="upload-content">
                     <div class="upload-icon">📸</div>
-                    <h4>Upload Training Images</h4>
-
-                    <p>Drag & Drop or choose multiple images.</p>
-
-                    <button type="button" id="uploadBtn">
-                        Choose Images
-                    </button>
+                    <h4>Upload Training Samples</h4>
+                    <p>Drag & Drop or choose multiple training images.</p>
+                    <button type="button" id="uploadBtn">Choose Files</button>
                 </div>
             </div>
         </div>
 
-        <div class="meme-panel hidden" id="memePanel">
-            <div class="meme-upload-card">
-
-                <h4>Meme Template</h4>
-                <p>Upload the meme image that your custom model should return.</p>
-
-                <img id="memePreview"
-                    src="{{ url_for('static', filename='MemeImgs/totalpeace.png') }}"
-                    alt="Meme Preview">
-
-                <input
-                    type="file"
-                    id="memeUpload"
-                    accept="image/*"
-                    hidden>
-
-                <button id="chooseMemeBtn">
-                    Choose Meme
-                </button>
-
+        <div class="dataset-header">
+            <div>
+                <h4>📸 Dataset Preview</h4>
+                <p>Collected training samples.</p>
+            </div>
+            <div class="counter-card">
+                <span id="imageCount">0</span>
+                <small>Images</small>
             </div>
         </div>
 
-        <div class="dataset-info">
-            <span id="imageCount">0 Images Added</span>
+        <div class="preview-grid" id="previewGrid">
+            <label class="preview-card upload-preview">
+                <input id="gridUpload" type="file" accept="image/*" multiple hidden>
+                <div class="plus">+</div>
+                <small>Add</small>
+            </label>
         </div>
 
-        <div class="preview-grid" id="previewGrid"></div>
-        <div class="action-buttons">
-            <button class="secondary-btn" id="clearBtn">
-                Clear Dataset
-            </button>
+        <div class="status-card">
+            <div class="status-item">
+                <span>Category Name</span>
+                <input type="text" id="memeName" placeholder="e.g. Joy, Surprised" style="background:#121214; border:1px solid rgba(124,58,237,.3); color:white; padding:6px 10px; border-radius:8px; width:100%; margin-top:4px;">
+            </div>
+            <div class="status-item">
+                <span>Target Meme</span>
+                <strong id="memeStatus">Default (Meme 1)</strong>
+            </div>
+            <div class="status-item">
+                <span>Dataset State</span>
+                <strong id="datasetStatus">Empty</strong>
+            </div>
+        </div>
 
-            <button class="primary-btn" id="trainBtn">
-                🚀 Train Model
-            </button>
+        <div class="action-buttons">
+            <button class="secondary-btn" id="clearBtn" type="button">Clear Dataset</button>
+            <button class="primary-btn" id="trainBtn" type="button">🚀 Train Model</button>
         </div>
 
     </div>
 
 </section>
 
+<section class="meme-library" id="meme-library">
+
+    <div class="library-header">
+        <span class="library-badge">🎭 Meme Library</span>
+
+        <h2>Choose a Meme Template</h2>
+        <p>Click any meme and it becomes your model's prediction target.</p>
+
+    </div>
+
+    <div class="library-grid">
+
+        {% for i in range(1,8) %}
+        <div class="library-card"
+             data-meme="{{ url_for('static', filename='MemeImgs/newmeme' ~ i ~ '.png') }}">
+
+            <img src="{{ url_for('static', filename='MemeImgs/newmeme' ~ i ~ '.png') }}">
+
+        </div>
+        {% endfor %}
+
+        <div class="preview-grid" id="previewGrid" >
+            <label class="preview-card upload-preview">
+                <input id="gridUpload"
+                       type="file"
+                       accept="image/*"
+                       multiple
+                       hidden>
+
+                <div class="plus">+</div>
+                <small>Add</small>
+            </label>
+    </div>
+
+</section>
+
 <script src="{{ url_for('static', filename='customise_model.js') }}"></script>
+
+{% endblock %}
