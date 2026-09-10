@@ -4,75 +4,163 @@ import mediapipe as mp
 from mediapipe.tasks import python
 from mediapipe.tasks.python import vision
 import pickle
+import json
 from pathlib import Path
 
-script_dir = Path(__file__).parent
+script_dir=Path(__file__).parent
+models=script_dir/"models"
 
-model_path = script_dir / "models" / "meme_mixed_model.p"
+pretrained=None
 
 try:
-    with model_path.open('rb') as f:
-        model_dict = pickle.load(f)
-    model = model_dict['model']
-    print("Trained model loaded successfully.")
-except FileNotFoundError:
-    print("Error: Trained model file not found.")
-    exit()
+    with open(models/"meme_mixed_model.p","rb") as f:
+        pretrained=pickle.load(f)["model"]
+except:
+    pass
 
-model_path = script_dir / 'models' / 'hand_landmarker.task'
-face_model_path = script_dir / 'models' / 'face_landmarker_v2_with_blendshapes.task'
+custom_model = None
+custom_metadata = {}
+custom_model_mtime = None
 
-hand_detector = vision.HandLandmarker.create_from_options(
+
+def load_custom_model():
+    global custom_model, custom_metadata, custom_model_mtime
+
+    model_path = models / "custom_combined_model.pkl"
+    meta_path = models / "custom_model_metadata.json"
+
+    if not model_path.exists():
+        custom_model = None
+        custom_metadata = {}
+        custom_model_mtime = None
+        return
+
+    current_mtime = model_path.stat().st_mtime
+
+    if custom_model is None or current_mtime != custom_model_mtime:
+
+        with open(model_path, "rb") as f:
+            custom_model = pickle.load(f)
+
+        if meta_path.exists():
+            with open(meta_path, "r") as f:
+                custom_metadata = json.load(f)
+        else:
+            custom_metadata = {}
+
+        custom_model_mtime = current_mtime
+
+        print("Reloaded metadata:", custom_metadata)
+        
+metadata={}
+
+if (models/"custom_model_metadata.json").exists():
+    with open(models/"custom_model_metadata.json") as f:
+        metadata=json.load(f)
+
+labels=[
+"angryCat",
+"giveMeMoney",
+"Iknow",
+"middle",
+"shock",
+"huh",
+"totalpeace",
+"waitWaht",
+"wannafight"
+]
+
+MODEL_EXPECTED_FEATURES=52
+
+hand=vision.HandLandmarker.create_from_options(
     vision.HandLandmarkerOptions(
-        base_options=python.BaseOptions(model_asset_path=str(model_path)),
+        base_options=python.BaseOptions(model_asset_path=str(models/"hand_landmarker.task")),
         num_hands=1
     )
 )
 
-face_detector = vision.FaceLandmarker.create_from_options(
+face=vision.FaceLandmarker.create_from_options(
     vision.FaceLandmarkerOptions(
-        base_options=python.BaseOptions(model_asset_path=str(face_model_path)),
+        base_options=python.BaseOptions(model_asset_path=str(models/"face_landmarker_v2_with_blendshapes.task")),
         num_faces=1,
         output_face_blendshapes=True
     )
 )
 
-MODEL_EXPECTED_FEATURES = 52
-labels = ['angryCat', 'giveMeMoney', 'Iknow', 'middle', 'shock', 'huh', 'totalpeace', 'waitWaht', 'wannafight']
-
 
 def get_results(img):
-    img = cv.flip(img, 1)
-    rgb_img = cv.cvtColor(img, cv.COLOR_BGR2RGB)
-    mp_img = mp.Image(image_format=mp.ImageFormat.SRGB, data=rgb_img)
+    load_custom_model()
 
-    detected_label = "No hand or face detected"
-    hand_data = []
+    img=cv.flip(img,1)
+    rgb=cv.cvtColor(img,cv.COLOR_BGR2RGB)
 
-    hand_res = hand_detector.detect(mp_img)
+    mp_img=mp.Image(image_format=mp.ImageFormat.SRGB,data=rgb)
 
-    if hand_res.hand_landmarks:
-        for hand_landmarks in hand_res.hand_landmarks:
-            for landmark in hand_landmarks:
-                hand_data.append(landmark.x)
-                hand_data.append(landmark.y)
+    hand_feat=[0.0]*52
+    face_feat=[0.0]*52
 
-        if len(hand_data) == 42:
-            padded_hand = hand_data + [0.0] * (MODEL_EXPECTED_FEATURES - len(hand_data))
-            prediction = model.predict([padded_hand])
-            detected_label = f"Hand: {labels[int(prediction[0])]}"
+    h=hand.detect(mp_img)
 
-    if len(hand_data) == 0:
-        face_res = face_detector.detect(mp_img)
+    if h.hand_landmarks:
 
-        if face_res.face_blendshapes and len(face_res.face_blendshapes) > 0:
-            face_data = []
+        pts=[]
 
-            for blendshape_category in face_res.face_blendshapes[0]:
-                face_data.append(blendshape_category.score)
+        for hh in h.hand_landmarks:
+            for lm in hh:
+                pts.extend([lm.x,lm.y])
 
-            if len(face_data) == MODEL_EXPECTED_FEATURES:
-                prediction = model.predict([face_data])
-                detected_label = f"Face Expression: {labels[int(prediction[0])]}"
+        if len(pts)==42:
+            hand_feat=pts+[0.0]*10
 
-    return detected_label
+    f=face.detect(mp_img)
+
+    if f.face_blendshapes:
+
+        pts=[b.score for b in f.face_blendshapes[0]]
+
+        if len(pts)==52:
+            face_feat=pts
+
+    combined=hand_feat+face_feat
+
+    if custom_model is not None:
+
+        pred=custom_model.predict([combined])[0]
+
+        return {
+            "display":f"Custom: {pred}",
+            "label":pred,
+            "meme":metadata.get("meme","newmeme1.png"),
+            "type":"custom"
+        }
+
+    if pretrained is not None:
+
+        if np.any(hand_feat):
+
+            pred=int(pretrained.predict([hand_feat])[0])
+
+            return {
+                "display":f"Hand: {labels[pred]}",
+                "label":labels[pred],
+                "meme":labels[pred]+".png",
+                "type":"pretrained"
+            }
+
+        if np.any(face_feat):
+
+            pred=int(pretrained.predict([face_feat])[0])
+
+            return {
+                "display":f"Face Expression: {labels[pred]}",
+                "label":labels[pred],
+                "meme":labels[pred]+".png",
+                "type":"pretrained"
+            }
+
+    return {
+        "display":"No hand or face detected",
+        "label":"",
+        "meme":"",
+        "type":"none"
+    }

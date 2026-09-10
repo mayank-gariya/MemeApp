@@ -1,208 +1,375 @@
-// Updated Mode and Selection Control inside customise_model.js
+// ===============================
+// Meme Lens - Custom Model Trainer
+// ===============================
+
 const $ = id => document.getElementById(id);
+
+// ---------- Elements ----------
 
 const previewGrid = $("previewGrid");
 const imageCount = $("imageCount");
 const memeNameInput = $("memeName");
 const categoryStatus = $("categoryStatus");
 const datasetStatus = $("datasetStatus");
+const memeStatus = $("memeStatus");
+
+const video = $("video");
+const canvas = $("canvas");
+
+const cameraPanel = $("cameraPanel");
+const uploadPanel = $("uploadPanel");
+
+const openCamera = $("openCamera");
+const captureBtn = $("captureBtn");
+
+const uploadBtn = $("uploadBtn");
+const uploadArea = $("uploadArea");
+const imageUpload = $("imageUpload");
+const gridUpload = $("gridUpload");
+
+const chooseMemeBtn = $("chooseMemeBtn");
+const memeUpload = $("memeUpload");
+const memePreview = $("memePreview");
+
+const trainBtn = $("trainBtn");
+const clearBtn = $("clearBtn");
+
+const cameraMode = $("cameraMode");
+const galleryMode = $("galleryMode");
+
+const scrollTrainer = $("scrollTrainer");
+
+// ---------- State ----------
 
 let stream = null;
-let totalImages =0;
+let totalImages = 0;
+let trainingFiles = [];
+let selectedMemeName = "newmeme1.png";
 
-const modes = {
-    camera: $("cameraPanel"),
-    gallery: $("uploadPanel")
+// ===============================
+// Hero Scroll
+// ===============================
+
+if (scrollTrainer) {
+    scrollTrainer.onclick = e => {
+        e.preventDefault();
+        $("meme-library").scrollIntoView({
+            behavior: "smooth"
+        });
+    };
+}
+
+// ===============================
+// Camera / Gallery Mode
+// ===============================
+
+function activateMode(mode){
+
+    cameraMode.classList.remove("active");
+    galleryMode.classList.remove("active");
+
+    cameraPanel.classList.add("hidden");
+    uploadPanel.classList.add("hidden");
+
+    if(mode==="camera"){
+        cameraMode.classList.add("active");
+        cameraPanel.classList.remove("hidden");
+    }
+
+    if(mode==="gallery"){
+        galleryMode.classList.add("active");
+        uploadPanel.classList.remove("hidden");
+        stopCamera();
+    }
+}
+
+cameraMode.onclick=()=>activateMode("camera");
+galleryMode.onclick=()=>activateMode("gallery");
+
+// ===============================
+// Camera
+// ===============================
+
+function stopCamera(){
+
+    if(stream){
+        stream.getTracks().forEach(track=>track.stop());
+        stream=null;
+    }
+
+    video.srcObject=null;
+    video.style.display="none";
+    openCamera.innerText="Open Camera";
+}
+
+openCamera.onclick=async()=>{
+
+    try{
+
+        if(!stream){
+
+            stream=await navigator.mediaDevices.getUserMedia({
+                video:true
+            });
+
+            video.srcObject=stream;
+            video.style.display="block";
+            openCamera.innerText="Close Camera";
+
+        }else{
+
+            stopCamera();
+
+        }
+
+    }catch(err){
+
+        console.error(err);
+        alert("Unable to access camera.");
+
+    }
 };
 
-function activateMode(mode) {
-    ["camera", "gallery"].forEach(name => {
-        if (modes[name]) {
-            modes[name].classList.toggle("hidden", name !== mode);
-        }
-        if ($(name + "Mode")) {
-            $(name + "Mode").classList.toggle("active", name === mode);
-        }
-    });
+// Capture image and store it as File
 
-    if (mode !== "camera") stopCamera();
-}
+captureBtn.onclick=()=>{
 
-function stopCamera() {
-    if (stream) {
-        stream.getTracks().forEach(t => t.stop());
-        stream = null;
+    if(!stream){
+        alert("Open the camera first.");
+        return;
     }
-    if ($("video")) {
-        $("video").srcObject = null;
-        $("video").style.display = "none";
-        $("openCamera").innerText = "Open Camera";
-    }
-}
 
-if ($("cameraMode")) $("cameraMode").onclick = () => activateMode("camera");
-if ($("galleryMode")) $("galleryMode").onclick = () => activateMode("gallery");
+    canvas.width=video.videoWidth;
+    canvas.height=video.videoHeight;
 
-if ($("openCamera")) {
-    $("openCamera").onclick = async () => {
-        if (stream) return stopCamera();
-        try {
-            stream = await navigator.mediaDevices.getUserMedia({ video: true });
-            $("video").srcObject = stream;
-            $("video").style.display = "block";
-            $("openCamera").innerText = "Close Camera";
-        } catch (err) {
-            alert("Camera access denied or unavailable.");
-        }
-    };
-}
+    const ctx=canvas.getContext("2d");
+    ctx.drawImage(video,0,0);
 
-if ($("captureBtn")) {
-    $("captureBtn").onclick = () => {
-        if (!stream) return alert("Open the camera first.");
-        const canvas = $("canvas");
-        const video = $("video");
-        canvas.width = video.videoWidth || 640;
-        canvas.height = video.videoHeight || 480;
-        canvas.getContext("2d").drawImage(video, 0, 0, canvas.width, canvas.height);
-        addImage(canvas.toDataURL());
-    };
-}
+    canvas.toBlob(blob=>{
 
-function handleFiles(files) {
-    [...files].forEach(file => {
-        const reader = new FileReader();
-        reader.onload = e => addImage(e.target.result);
-        reader.readAsDataURL(file);
-    });
-}
+        const file=new File(
+            [blob],
+            `capture_${Date.now()}.png`,
+            {type:"image/png"}
+        );
 
-if ($("uploadBtn")) {
-    $("uploadBtn").onclick = e => {
-        e.stopPropagation();
-        $("imageUpload").click();
-    };
-}
+        trainingFiles.push(file);
 
-if ($("gridUpload")) $("gridUpload").onchange = e => handleFiles(e.target.files);
-if ($("imageUpload")) $("imageUpload").onchange = e => handleFiles(e.target.files);
-if ($("uploadArea")) $("uploadArea").onclick = () => $("imageUpload").click();
+        addImage(URL.createObjectURL(file));
 
-// Custom target meme uploader handler
-if ($("chooseMemeBtn")) $("chooseMemeBtn").onclick = () => $("memeUpload").click();
+    },"image/png");
+};
 
-if ($("memeUpload")) {
-    $("memeUpload").onchange = e => {
-        const file = e.target.files[0];
-        if (!file) return;
-        const reader = new FileReader();
-        reader.onload = ev => {
-            $("memePreview").src = ev.target.result;
-            $("memeStatus").innerText = "Custom Target";
+// ===============================
+// Gallery Upload
+// ===============================
+
+function handleFiles(files){
+
+    [...files].forEach(file=>{
+
+        trainingFiles.push(file);
+
+        const reader=new FileReader();
+
+        reader.onload=e=>{
+            addImage(e.target.result);
         };
+
         reader.readAsDataURL(file);
-    };
+
+    });
 }
 
-function addImage(src) {
-    totalImages++;
-    imageCount.innerText = totalImages;
-    datasetStatus.innerText = `${totalImages} Samples`;
+uploadBtn.onclick=e=>{
+    e.stopPropagation();
+    imageUpload.click();
+};
 
-    const card = document.createElement("div");
-    card.className = "preview-card";
+uploadArea.onclick=()=>imageUpload.click();
 
-    card.innerHTML = `
-        <img src="${src}" alt="Training Sample">
-        <button class="remove-preview" type="button">×</button>
-    `;
+imageUpload.onchange=e=>handleFiles(e.target.files);
 
-    card.querySelector(".remove-preview").onclick = () => {
-        card.remove();
-        totalImages--;
-        imageCount.innerText = totalImages;
-        datasetStatus.innerText = totalImages ? `${totalImages} Samples` : "Empty";
+gridUpload.onchange=e=>handleFiles(e.target.files);
+
+// ===============================
+// Meme Upload
+// ===============================
+
+chooseMemeBtn.onclick=()=>memeUpload.click();
+
+memeUpload.onchange=e=>{
+
+    const file=e.target.files[0];
+
+    if(!file) return;
+
+    selectedMemeName=file.name;
+
+    const reader=new FileReader();
+
+    reader.onload=ev=>{
+
+        memePreview.src=ev.target.result;
+        memeStatus.innerText="Custom Meme";
+
     };
 
-    previewGrid.insertBefore(card, previewGrid.firstChild);
-}
+    reader.readAsDataURL(file);
+};
 
-if (memeNameInput) {
-    memeNameInput.oninput = e => {
-        if (categoryStatus) {
-            categoryStatus.innerText = e.target.value.trim() || "—";
-        }
-    };
-}
+// ===============================
+// Meme Library
+// ===============================
 
-if ($("clearBtn")) {
-    $("clearBtn").onclick = () => {
-        previewGrid.querySelectorAll(".preview-card:not(.upload-preview)").forEach(c => c.remove());
-        totalImages = 0;
-        imageCount.innerText = 0;
-        datasetStatus.innerText = "Empty";
-    };
-}
+document.querySelectorAll(".library-card").forEach(card=>{
 
-if ($("trainBtn")) {
-    $("trainBtn").onclick = () => {
-        if (memeNameInput && !memeNameInput.value.trim()) return alert("Enter a category name.");
-        if (totalImages === 0) return alert("Add training images for your dataset.");
-        if (!$("memePreview").src) return alert("Ensure a target meme outcome is selected.");
+    card.onclick=()=>{
 
-        alert("Training model pipeline initiated successfully with target output meme!");
-    };
-}
+        document.querySelectorAll(".library-card")
+            .forEach(c=>c.classList.remove("active"));
 
-// Handling selection from library cards to act as the target meme output
-document.querySelectorAll(".library-card").forEach(card => {
-    card.onclick = () => {
-        document.querySelectorAll(".library-card").forEach(c => c.classList.remove("active"));
         card.classList.add("active");
 
-        const memeSrc = card.dataset.meme;
-        $("memePreview").src = memeSrc;
-        $("memeStatus").innerText = "Library Target";
+        memePreview.src=card.dataset.meme;
 
-        $("memePanel").scrollIntoView({
-            behavior: "smooth",
-            block: "center"
+        selectedMemeName=card.dataset.meme.split("/").pop();
+
+        memeStatus.innerText="Library Meme";
+
+        memePreview.scrollIntoView({
+            behavior:"smooth",
+            block:"center"
         });
     };
 });
 
-// Custom library dropzone functionality
-const libraryDropzone = $("libraryDropzone");
-const libraryUploadInput = $("libraryUploadInput");
+// ===============================
+// Dataset
+// ===============================
 
-if (libraryDropzone && libraryUploadInput) {
-    libraryDropzone.onclick = () => libraryUploadInput.click();
+function updateCounter(){
 
-    libraryUploadInput.onchange = e => {
-        const file = e.target.files[0];
-        if (!file) return;
+    imageCount.innerText=totalImages;
+    datasetStatus.innerText=
+        totalImages===0
+            ?"Empty"
+            :`${totalImages} Samples`;
 
-        const reader = new FileReader();
-        reader.onload = ev => {
-            const newCard = document.createElement("div");
-            newCard.className = "library-card active";
-            newCard.dataset.meme = ev.target.result;
-            newCard.innerHTML = `<img src="${ev.target.result}" alt="Custom Meme Target">`;
-
-            newCard.onclick = () => {
-                document.querySelectorAll(".library-card").forEach(c => c.classList.remove("active"));
-                newCard.classList.add("active");
-                $("memePreview").src = ev.target.result;
-                $("memeStatus").innerText = "Custom Library Target";
-            };
-
-            libraryDropzone.parentNode.insertBefore(newCard, libraryDropzone);
-
-            $("memePreview").src = ev.target.result;
-            $("memeStatus").innerText = "Custom Library Target";
-        };
-        reader.readAsDataURL(file);
-    };
+    if(categoryStatus){
+        categoryStatus.innerText=
+            memeNameInput.value.trim() || "—";
+    }
 }
 
+function addImage(src){
+
+    totalImages++;
+    updateCounter();
+
+    const card=document.createElement("div");
+    card.className="preview-card";
+
+    card.innerHTML=`
+        <img src="${src}" alt="Training Sample">
+        <button class="remove-preview" type="button">×</button>
+    `;
+
+    card.querySelector(".remove-preview").onclick=()=>{
+
+        const index=[...previewGrid.children].indexOf(card)-1;
+
+        if(index>=0){
+            trainingFiles.splice(index,1);
+        }
+
+        card.remove();
+
+        totalImages--;
+        updateCounter();
+    };
+
+    previewGrid.insertBefore(card,previewGrid.firstChild);
+}
+
+memeNameInput.oninput=updateCounter;
+
+// ===============================
+// Clear Dataset
+// ===============================
+
+clearBtn.onclick=()=>{
+
+    previewGrid
+        .querySelectorAll(".preview-card:not(.upload-preview)")
+        .forEach(card=>card.remove());
+
+    trainingFiles=[];
+    totalImages=0;
+
+    updateCounter();
+};
+
+// ===============================
+// Train Model
+// ===============================
+
+trainBtn.onclick=async()=>{
+
+    if(!memeNameInput.value.trim()){
+        alert("Enter a category name.");
+        return;
+    }
+
+    if(trainingFiles.length===0){
+        alert("Add training images.");
+        return;
+    }
+
+    const formData = new FormData();
+
+    formData.append("class_label",memeNameInput.value.trim());
+    formData.append("data_size",trainingFiles.length);
+    formData.append("meme_name",selectedMemeName);
+
+    trainingFiles.forEach(file=>{
+        formData.append("images",file);
+    });
+
+    try{
+
+        trainBtn.disabled=true;
+        trainBtn.innerText="Training...";
+
+        const response=await fetch("/customise-model/train",{
+            method:"POST",
+            body:formData
+        });
+
+        const data=await response.json();
+
+        if(response.ok){
+
+            alert(data.message || "Model trained successfully!");
+
+        }else{
+
+            alert(data.error || "Training failed.");
+
+        }
+
+    }catch(err){
+
+        console.error(err);
+        alert("Something went wrong while training.");
+
+    }finally{
+
+        trainBtn.disabled=false;
+        trainBtn.innerText="🚀 Train Model";
+    }
+};
+
+
 activateMode("camera");
+updateCounter();

@@ -1,89 +1,111 @@
-const openCamera = document.getElementById("openCamera");
-const captureBtn = document.getElementById("captureBtn");
-const video = document.getElementById("video");
-const canvas = document.getElementById("canvas");
-const preview = document.getElementById("preview");
-const result = document.getElementById('result');
+const openCamera=document.getElementById("openCamera");
+const captureBtn=document.getElementById("captureBtn");
 
-let stream = null;
-let cameraOpen = false;
-let ImageCapture = false;
+const video=document.getElementById("video");
+const canvas=document.getElementById("canvas");
 
-async function openStream() {
-    stream = await navigator.mediaDevices.getUserMedia({ video: true });
-    video.srcObject = stream;
-    await video.play();
+const preview=document.getElementById("preview");
+const result=document.getElementById("result");
 
-    video.style.display = "block";
-    preview.style.display = "none";
+let stream=null;
+let cameraOpen=false;
 
-    cameraOpen = true;
-    openCamera.innerText = "Close Camera";
-}
+async function openStream(){
 
-function closeStream() {
-    if (stream) {
-        stream.getTracks().forEach(track => track.stop());
-        stream = null;
-    }
-
-    video.srcObject = null;
-    video.style.display = "none";
-
-    cameraOpen = false;
-    openCamera.innerText = "Open Camera";
-}
-
-openCamera.addEventListener("click", async () => {
-    try {
-        if (!cameraOpen) {
-            await openStream();
-        } else {
-            closeStream();
-        }
-    } catch (err) {
-        console.error(err);
-        alert("Camera permission denied.");
-    }
-});
-
-captureBtn.addEventListener("click", async () => {
-    if (!ImageCapture) {
-        canvas.width = video.videoWidth;
-        canvas.height = video.videoHeight;
-
-        const ctx = canvas.getContext("2d");
-        ctx.drawImage(video, 0, 0);
-
-        preview.src = canvas.toDataURL("image/png");
-        preview.style.display = "block";
-
-        canvas.toBlob(async (blob) => {
-            const formData = new FormData();
-            formData.append("image", blob, "capture.png");
-
-            const response = await fetch("/meme/predict/", {
-                method: "POST",
-                body: formData
-            });
-
-            const data = await response.json();
-            const memeName = data.result.split(": ")[1];
-            result.setAttribute("src", `/static/MemeImgs/${memeName}.png`);
-            result.style.display = "block";
-        }, "image/png");
-    }
-});
-
-canvas.toBlob(async (blob) => {
-    const formData = new FormData();
-    formData.append("image", blob, "capture.png");
-
-    const response = await fetch("/meme/predict", {
-        method: "POST",
-        body: formData
+    stream=await navigator.mediaDevices.getUserMedia({
+        video:true
     });
 
-    const data = await response.json();
-    console.log(data.result);
-}, "image/png");
+    video.srcObject=stream;
+
+    await video.play();
+
+    video.style.display="block";
+    preview.style.display="none";
+
+    cameraOpen=true;
+    openCamera.innerText="Close Camera";
+}
+
+function closeStream(){
+
+    if(stream){
+        stream.getTracks().forEach(t=>t.stop());
+        stream=null;
+    }
+
+    video.srcObject=null;
+    video.style.display="none";
+
+    cameraOpen=false;
+    openCamera.innerText="Open Camera";
+}
+
+openCamera.onclick=async()=>{
+
+    try{
+
+        if(cameraOpen)
+            closeStream();
+        else
+            await openStream();
+
+    }catch(err){
+
+        console.error(err);
+        alert("Camera permission denied.");
+
+    }
+};
+
+captureBtn.onclick=()=>{
+
+    if(!cameraOpen){
+        alert("Open camera first.");
+        return;
+    }
+
+    canvas.width=video.videoWidth;
+    canvas.height=video.videoHeight;
+
+    canvas.getContext("2d").drawImage(video,0,0);
+
+    preview.src=canvas.toDataURL("image/png");
+    preview.style.display="block";
+
+    canvas.toBlob(async blob=>{
+
+        const fd=new FormData();
+
+        fd.append("image",blob,"capture.png");
+
+        const response=await fetch("/meme/predict/",{
+            method:"POST",
+            body:fd
+        });
+
+        const data=await response.json();
+
+        console.log(data);
+
+        const prediction=data.result;
+
+        if(prediction.type==="custom"){
+
+            result.src=`/static/MemeImgs/${prediction.meme}`;
+
+        }else if(prediction.type==="pretrained"){
+
+            result.src=`/static/MemeImgs/${prediction.meme}`;
+
+        }else{
+
+            alert(prediction.display);
+            return;
+
+        }
+
+        result.style.display="block";
+
+    },"image/png");
+};
