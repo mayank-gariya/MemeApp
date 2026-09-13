@@ -93,22 +93,6 @@
     font-weight: 500;
 }
 
-.btn-recommend {
-    display: block;
-    text-align: center;
-    background-color: #27272a;
-    color: #ffffff;
-    text-decoration: none;
-    padding: 0.6rem 1rem;
-    border-radius: 6px;
-    font-size: 0.9rem;
-    font-weight: 600;
-    transition: background-color 0.2s ease;
-}
-
-.btn-recommend:hover {
-    background-color: #8b5cf6;
-}
 
 .show-more-area {
     margin: 0 auto;

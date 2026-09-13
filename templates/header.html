@@ -4,14 +4,9 @@
             <span class="logo-icon">🔍</span> Meme<span class="highlight hover-meme-trigger">Lens</span>
         </a>
 
-        <div class="search-bar">
-            <input type="text" placeholder="Search trending memes..." />
-            <button type="submit">Search</button>
-        </div>
-
         <nav class="nav-links">
             <a href="{{ url_for('home') }}" class="nav-item active">Home</a>
-            <a href="{{ url_for('meme') }}" class="nav-item">Recommend</a>
+            <a href="{{ url_for('meme') }}" class="nav-item">Memes</a>
             <a href="{{ url_for('custome_model') }}" class="nav-item">Train AI Model</a>
             <a href="{{ url_for('trained_model') }}" class="nav-item btn-primary">Use Model</a>
         </nav>
