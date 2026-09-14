@@ -22,17 +22,12 @@ own custom meme recognition model.
 -   🌐 Live meme feed integration.
 -   💜 Responsive purple-themed UI.
 
-## Tech Stack
-
-  Layer                Technology
-  -------------------- ----------------------------
-  Backend              Flask
-  Frontend             HTML, CSS, JavaScript
-  Vision               OpenCV
-  Landmark Detection   MediaPipe Tasks
-  ML                   scikit-learn Random Forest
-  Numerical            NumPy
-  Deployment           Gunicorn, Render
+## preview of project 
+<img width="1761" height="761" alt="image" src="https://github.com/user-attachments/assets/c50969da-607f-4814-926e-c0623e3db0fe" />
+<img width="1920" height="909" alt="image" src="https://github.com/user-attachments/assets/51506dd6-733f-4b8e-8678-82f4d3a28f7c" />
+<img width="1909" height="883" alt="image" src="https://github.com/user-attachments/assets/5e7995ce-f1e9-4472-b1e5-ad340a2824b3" />
+<img width="1852" height="493" alt="image" src="https://github.com/user-attachments/assets/89433df1-9bc0-4ac5-9cbe-139ad0a5c440" />
+<img width="1805" height="813" alt="image" src="https://github.com/user-attachments/assets/c2e9ae2e-0822-4d7e-9e61-2d29e0d0726b" />
 
 ## Folder Structure
 
@@ -181,9 +176,6 @@ gunicorn app:app --workers 1 --threads 2 --timeout 180
 -   Authentication
 -   Model progress tracking
 
-## License
-
-MIT
 
 ------------------------------------------------------------------------
 
